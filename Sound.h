@@ -7,6 +7,11 @@
 #define RX 10  // collegare a TX
 SerialMP3Player mp3(RX, TX);
 
+#define HEARTBEAT_0dB 0
+#define HEARTBEAT_7dB 1
+#define HEARTBEAT_10dB 3
+#define DRONE 2
+
 
 void init_mp3() {
   mp3.begin(9600);                     // start mp3-communication
@@ -18,5 +23,13 @@ void init_mp3() {
 }
 
 void play_beat() {
-  mp3.play();
+  mp3.play(HEARTBEAT_10dB);
+}
+
+void play_wait() {
+  mp3.play(DRONE);
+}
+
+void stop_sounds(){
+  mp3.stop();
 }

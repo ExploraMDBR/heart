@@ -3,6 +3,7 @@
 #include "Sound.h"
 
 int count = 0;
+bool _detected = false;
 
 void setup()
 {
@@ -21,20 +22,36 @@ void setup()
   init_mp3();
 }
 
+const char symbols[4] = {'~', '-', '.', '='};
+
 void loop() {
   Beat_State beat_state = check_beat();
 
   switch (beat_state) {
     case Beat_State::BEAT:
       digitalWrite(LED_BUILTIN, HIGH);
+      Serial.println(String("\nBEAT ") + millis());
       play_beat();
       break;
     case Beat_State::PRECENSE:
-      if (count++ % 8 == 0) {
-        Serial.println("+");
+      Serial.print(symbols[count++ % 4]);
+
+      if (!_detected) {
+        _detected = true;
+        play_wait();
       }
       break;
+    case Beat_State::NO:
+      Serial.print('%');
+      _detected = false;
+      stop_sounds();
+      break;
   }
+  if (count > 30) {
+    count = 0;
+    Serial.println('#');
+  }
+
   if (millis() >= lastBeat + KEEP_LED ) {
     digitalWrite(LED_BUILTIN, LOW);
   }

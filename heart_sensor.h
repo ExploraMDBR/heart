@@ -41,7 +41,7 @@ long lastBeat = 0; //Time at which the last beat occurred
 float beatsPerMinute;
 int beatAvg;
 
-
+#define PRECENSE_THRESHOLD 50000
 
 
 bool heart_init() {
@@ -68,7 +68,7 @@ Beat_State check_beat() {
     long delta = millis() - lastBeat;
     lastBeat = millis();
 
-    if (irValue > 50000) {
+    if (irValue > PRECENSE_THRESHOLD) {
       result = Beat_State::BEAT;
     }
 
@@ -85,7 +85,7 @@ Beat_State check_beat() {
         beatAvg += rates[x];
       beatAvg /= RATE_SIZE;
     }
-  } else {
+  } else if (irValue > PRECENSE_THRESHOLD) {
     result = Beat_State::PRECENSE;
   }
 
