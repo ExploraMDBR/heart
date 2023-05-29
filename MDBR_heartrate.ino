@@ -27,11 +27,11 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
 
-  if (!heart_init()) {
-    Serial.println(HEART_SENSOR_NOT_FOUND);
-    while (1);
-  }
-  Serial.println(HEART_SENSOR_OK);
+  //  if (!heart_init()) {
+  //    Serial.println(HEART_SENSOR_NOT_FOUND);
+  //    while (1);
+  //  }
+  //  Serial.println(HEART_SENSOR_OK);
 
   init_mp3();
 
@@ -52,17 +52,15 @@ void loop() {
   switch (beat_state) {
     case Beat_State::BEAT:
       digitalWrite(LED_BUILTIN, HIGH);
-      Serial.println(String("\nBEAT ") + millis());
-
       _pump_vel = PUMP_SPEED_PEAK;
-      Serial.println(String("\nEND -- BEAT ") + millis());
       break;
     case Beat_State::PRECENSE:
       Serial.print(symbols[count++ % 4]);
 
       if (!_detected) {
         _detected = true;
-//        play_wait();
+        play_wait();
+        Serial.println("-----wait-----");
       }
       break;
     case Beat_State::NO:
@@ -93,9 +91,10 @@ void loop() {
   _pump_vel = max(PUMP_SPEED_BASELINE, _pump_vel - PUMP_SPEED_DECAY);
 
   show_leds();
-  //  delay(50);
+  delay(50);
   if (beat_state == Beat_State::BEAT) {
-//    play_beat();
+    play_beat();
+    Serial.println("-----BEAT-----");
   }
 
 }

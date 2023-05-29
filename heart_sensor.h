@@ -25,24 +25,45 @@
 
 //https://lastminuteengineers.com/max30102-pulse-oximeter-heart-rate-sensor-arduino-tutorial/
 
+#include "types.h"
+
+#define _REMOTE_HEART_SENSING_ 2000
+
+long lastBeat = 0; //Time at which the last beat occurred
+
+#ifdef _REMOTE_HEART_SENSING_
+
+Beat_State check_beat() {
+//  return Beat_State::PRECENSE;
+  long delta = millis() - lastBeat;
+  if (delta >= _REMOTE_HEART_SENSING_) {
+
+    lastBeat = millis();
+    return Beat_State::BEAT;
+  } else if (delta > _REMOTE_HEART_SENSING_*2 / 3 || delta < _REMOTE_HEART_SENSING_ / 3) {
+    return Beat_State::PRECENSE;
+  }
+  return Beat_State::NO;
+}
+
+#else
 
 #include <Wire.h>
 #include "MAX30105.h"
 #include "heartRate.h"
-#include "types.h"
+
 
 MAX30105 particleSensor;
 
 const byte RATE_SIZE = 4; //Increase this for more averaging. 4 is good.
 byte rates[RATE_SIZE]; //Array of heart rates
 byte rateSpot = 0;
-long lastBeat = 0; //Time at which the last beat occurred
+
 
 float beatsPerMinute;
 int beatAvg;
 
 #define PRECENSE_THRESHOLD 50000
-
 
 bool heart_init() {
   // Initialize sensor
@@ -91,3 +112,5 @@ Beat_State check_beat() {
 
   return result;
 }
+
+#endif //end _REMOTE_HEART_SENSING_
