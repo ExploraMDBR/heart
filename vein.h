@@ -10,13 +10,13 @@ FASTLED_USING_NAMESPACE
 #define BRIGHTNESS         100
 #define FRAMES_PER_SECOND  120
 
-#define VEIN_COLOR_TRANSITION_SHRINK 5 // Normally 2 < val < 8
+#define VEIN_COLOR_TRANSITION_SHRINK 8 // Normally 2 < val < 8
 
 // --- Blood Speed controls
 //#define HOLE_TAIL 15
 #define PUMP_SPEED_PEAK 2
-#define PUMP_SPEED_DECAY 0.4
-#define PUMP_SPEED_BASELINE 0.04
+#define PUMP_SPEED_DECAY 0.2
+#define PUMP_SPEED_BASELINE 0.1
 
 // --- Blood valley dim controls
 #define SMOOTH_FACTOR 0.5
@@ -51,8 +51,6 @@ void led_setup(CRGB *leds, int NUM) {
       FastLED.setBrightness(BRIGHTNESS);
 
     }
-
-
 
 template <int NUM, int OFFSET = 0>
 struct Vein {
