@@ -27,26 +27,41 @@
 
 #include "types.h"
 
-#define _REMOTE_HEART_SENSING_ 2000
+#define REMOTE_HEART_MIN_DELAY 200
 
 long lastBeat = 0; //Time at which the last beat occurred
 
-#ifdef _REMOTE_HEART_SENSING_
+#ifdef REMOTE_HEART_MIN_DELAY // Sse digital pins to get the sensor state from other Arduino
+
+#define PRECENSE_OUT_PIN 8
+#define BEAT_OUT_PIN 9
+
+bool heart_init() {
+  pinMode(PRECENSE_OUT_PIN, INPUT);
+  pinMode(BEAT_OUT_PIN, INPUT);
+  return true;
+}
 
 Beat_State check_beat() {
-//  return Beat_State::PRECENSE;
-  long delta = millis() - lastBeat;
-  if (delta >= _REMOTE_HEART_SENSING_) {
+  int precense = digitalRead(PRECENSE_OUT_PIN);
+  int beat = digitalRead(BEAT_OUT_PIN);
 
-    lastBeat = millis();
-    return Beat_State::BEAT;
-  } else if (delta > _REMOTE_HEART_SENSING_*2 / 3 || delta < _REMOTE_HEART_SENSING_ / 3) {
+  if (beat) {
+    long delta = millis() - lastBeat;
+    if (delta >= REMOTE_HEART_MIN_DELAY) {
+
+      lastBeat = millis();
+      return Beat_State::BEAT;
+    }
+  } 
+  if (precense){
     return Beat_State::PRECENSE;
   }
+
   return Beat_State::NO;
 }
 
-#else
+#else // Use this arduino to read the sensor
 
 #include <Wire.h>
 #include "MAX30105.h"
@@ -113,4 +128,4 @@ Beat_State check_beat() {
   return result;
 }
 
-#endif //end _REMOTE_HEART_SENSING_
+#endif //end REMOTE_HEART_MIN_DELAY

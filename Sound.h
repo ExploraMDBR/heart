@@ -17,21 +17,20 @@ void init_mp3() {
   delay(500u);                         // wait for init
   mp3.sendCommand(CMD_SEL_DEV, 0, 2);  //select sd-card
   delay(500u);
-  mp3.play();
+  mp3.play(HEARTBEAT_10dB);
 
 }
 
 void play_beat() {
-  long int before = millis();
+  //  long int before = millis();
   mp3.play(HEARTBEAT_10dB);
-  Serial.println(String("Play delta:" ) + (millis()-before)+ "\n");
- 
+  //  Serial.println(String("Play delta:" ) + (millis()-before)+ "\n");
 }
 
 void play_wait() {
-//  mp3.play(DRONE);
+  mp3.play(DRONE);
 }
 
-void stop_sounds(){
+void stop_sounds() {
   mp3.stop();
 }
