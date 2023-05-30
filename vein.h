@@ -26,14 +26,17 @@ FASTLED_USING_NAMESPACE
 // --- Blood peaks scale
 #define BLOOD_PEAKS_SCALE 2.5f //needs to be float!
 
-CRGB get_vein_color(const uint8_t _i, const uint8_t _start, const uint8_t _end, const uint8_t _bright = 255) {
+#define PRESENCE_HUE_SHIFT -15
+
+CRGB get_vein_color(const uint8_t _i, const uint8_t _start, const uint8_t _end, 
+                    const uint8_t _bright = 255, const uint8_t _shift = 0) {
   if (_i < _start) {
-    return CHSV(HUE_BLUE, 255, _bright);
+    return CHSV(HUE_BLUE+_shift, 255, _bright);
   } else if ( _i > _end ) {
-    return CHSV(HUE_RED, 255, _bright);
+    return CHSV(HUE_RED+_shift, 255, _bright);
   }
   int _hue = map( _i, _start, _end, HUE_BLUE, HUE_RED_HIGHER);
-  return CHSV(_hue, 255, _bright);
+  return CHSV(_hue+_shift, 255, _bright);
 }
 
 void show_leds() {
@@ -69,14 +72,10 @@ struct Vein {
   }
 
   void start() {
+    int rand = random(255);
     for (int i = 0 ; i < NUM ; i++) {
-      leds[i + OFFSET] = CRGB::Yellow;
-//      char buffer[30];
-//      sprintf(buffer, "%p", leds+i+OFFSET);
-//
-//      Serial.println(buffer);
+      leds[i + OFFSET] = CHSV(rand, 255, 255);
     }
-//    Serial.println("********************************");
     FastLED.show();
   }
 
@@ -85,19 +84,30 @@ struct Vein {
   //    return (dist < 0) ? 255 : dist;
   //  }
 
-  void update(float _pump_vel) {
+  void update(float _pump_vel, float precense_effect) {
     float pump_intensity = (_pump_vel - PUMP_SPEED_BASELINE) / (PUMP_SPEED_PEAK - PUMP_SPEED_BASELINE);
     smooth_pump_intensity = smooth_pump_intensity * SMOOTH_FACTOR + pump_intensity * (1 - SMOOTH_FACTOR);
 
     for (int i = 0 ; i < NUM ; i++) {
       // get bright for hole and tail
       uint8_t bright = max( MIN_BRIGHT , sin((hole + i) / BLOOD_PEAKS_SCALE) * 256);
+      uint8_t shift = 0;
 
       // dim hole and tail when speed low
       bright = (bright == 255) ? 255 : min(255, bright * BRIGHT_RAISE_AFTER_BEAT * (1 - smooth_pump_intensity));
+      if (precense_effect){
+        int randNumber = random(255);
+        if (randNumber > 200){
+          bright -= randNumber * precense_effect;
+          
+        }
+        shift = PRESENCE_HUE_SHIFT * precense_effect;
+      }
+
+
 //      Serial.print(bright_to_ascii(bright / 256.0));
 
-      leds[i + OFFSET] = get_vein_color(i, TRANSITION_START, TRANSITION_END, bright);
+      leds[i + OFFSET] = get_vein_color(i, TRANSITION_START, TRANSITION_END, bright, shift);
     }
 //    Serial.print("  | ORIGINAL:  ");
 //    Serial.print(pump_intensity);
