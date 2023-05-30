@@ -86,9 +86,9 @@ void loop() {
     case Beat_State::NO:
       Serial.print('%');
       count++;
+      if (_detected) stop_sounds();
       _detected = false;
       precense_effect = max( 0, precense_effect - 0.05);
-      stop_sounds();
       break;
   }
   if (count > 30) {
