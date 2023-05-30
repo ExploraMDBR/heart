@@ -2,7 +2,8 @@
 #include <stdint.h>
 FASTLED_USING_NAMESPACE
 
-#define DATA_PIN    2
+#define HEART_PIN    2
+#define VEIN_PIN    4
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define HUE_RED_HIGHER HUE_RED + 255
@@ -28,15 +29,20 @@ FASTLED_USING_NAMESPACE
 
 #define PRESENCE_HUE_SHIFT -15
 
-CRGB get_vein_color(const uint8_t _i, const uint8_t _start, const uint8_t _end, 
+///------------- HEART LEDS
+
+/// ------------ END HEART LEDS
+
+
+CRGB get_vein_color(const uint8_t _i, const uint8_t _start, const uint8_t _end,
                     const uint8_t _bright = 255, const uint8_t _shift = 0) {
   if (_i < _start) {
-    return CHSV(HUE_BLUE+_shift, 255, _bright);
+    return CHSV(HUE_BLUE + _shift, 255, _bright);
   } else if ( _i > _end ) {
-    return CHSV(HUE_RED+_shift, 255, _bright);
+    return CHSV(HUE_RED + _shift, 255, _bright);
   }
   int _hue = map( _i, _start, _end, HUE_BLUE, HUE_RED_HIGHER);
-  return CHSV(_hue+_shift, 255, _bright);
+  return CHSV(_hue + _shift, 255, _bright);
 }
 
 void show_leds() {
@@ -49,11 +55,39 @@ char bright_to_ascii(float b) {
   return myASCII[static_cast<int>(static_cast<float>(sizeof(myASCII) - 1) * b)];
 }
 
-void led_setup(CRGB *leds, int NUM) {
-      FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM).setCorrection(TypicalLEDStrip);
-      FastLED.setBrightness(BRIGHTNESS);
+void led_setup(CRGB *veinleds, int veinnum, CRGB *heartleds, int heartnum) {
+  FastLED.addLeds<LED_TYPE, VEIN_PIN, COLOR_ORDER>(veinleds, veinnum).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE, HEART_PIN, COLOR_ORDER>(heartleds, heartnum).setCorrection(TypicalLEDStrip);
+  FastLED.setBrightness(BRIGHTNESS);
+}
 
+#define HEART_LED_BASE_BRIGHT 100
+void pump_heart(CRGB *heartleds, int heartnum, float _pump_speed, float precense_effect) {
+  static float led_val = HEART_LED_BASE_BRIGHT;
+  if (_pump_speed <= PUMP_SPEED_PEAK / 2) {
+    led_val = max(led_val - 50, HEART_LED_BASE_BRIGHT);
+  } else {
+    led_val = min(255, led_val + _pump_speed * 50);
+
+  }
+  //  Serial.println(led_val);
+
+
+  for (int i = 0 ; i < heartnum ; i++) {
+    int bright_val = led_val;
+    if (precense_effect) {
+      int randNumber = random(100);
+      if (randNumber > 50) {
+        bright_val -= randNumber * precense_effect;
+      }
+      heartleds[i] = CHSV(HUE_RED+PRESENCE_HUE_SHIFT, 255, bright_val);
+    } else {
+      heartleds[i] = CHSV(HUE_RED, 255, bright_val);
     }
+    
+  }
+}
+
 
 template <int NUM, int OFFSET = 0>
 struct Vein {
@@ -65,8 +99,8 @@ struct Vein {
   Vein(CRGB *_leds):
     hole(0),
     smooth_pump_intensity(0),
-    TRANSITION_START((NUM / 2) - max(2,(NUM / VEIN_COLOR_TRANSITION_SHRINK))),
-    TRANSITION_END((NUM / 2) + max(2,(NUM / VEIN_COLOR_TRANSITION_SHRINK)))
+    TRANSITION_START((NUM / 2) - max(2, (NUM / VEIN_COLOR_TRANSITION_SHRINK))),
+    TRANSITION_END((NUM / 2) + max(2, (NUM / VEIN_COLOR_TRANSITION_SHRINK)))
   {
     leds = _leds;
   }
@@ -95,25 +129,25 @@ struct Vein {
 
       // dim hole and tail when speed low
       bright = (bright == 255) ? 255 : min(255, bright * BRIGHT_RAISE_AFTER_BEAT * (1 - smooth_pump_intensity));
-      if (precense_effect){
+      if (precense_effect) {
         int randNumber = random(255);
-        if (randNumber > 200){
+        if (randNumber > 200) {
           bright -= randNumber * precense_effect;
-          
+
         }
         shift = PRESENCE_HUE_SHIFT * precense_effect;
       }
 
 
-//      Serial.print(bright_to_ascii(bright / 256.0));
+      //      Serial.print(bright_to_ascii(bright / 256.0));
 
       leds[i + OFFSET] = get_vein_color(i, TRANSITION_START, TRANSITION_END, bright, shift);
     }
-//    Serial.print("  | ORIGINAL:  ");
-//    Serial.print(pump_intensity);
-//    Serial.print("  | SMOOTH:  ");
-//    Serial.print(smooth_pump_intensity);
-//    Serial.println();
+    //    Serial.print("  | ORIGINAL:  ");
+    //    Serial.print(pump_intensity);
+    //    Serial.print("  | SMOOTH:  ");
+    //    Serial.print(smooth_pump_intensity);
+    //    Serial.println();
     hole += _pump_vel;
   }
 };
