@@ -25,8 +25,15 @@ Additionally it turns on a *one by one animation* of an array of led strips disp
 
 
 ## <a name="development"></a>Development
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+This repository contains the arduino sketches to perform a heart sensor reading, and generate a visual and sound output.
 
+It requires:
+
+- 1x Arduino UNO
+- 1x Arduino MEGA
+
+Upload `HeartBeat_to_digital_out.ino` to the Arduino UNO  
+Upload `MDBR_heartrate.ino` to the Arduino MEGA
 
 ## <a name="infos"></a>Project additional infos
 
