@@ -7,7 +7,7 @@
 
 - [Introduction](#introduction)
 - [Development](#development)
-- [Project additional infos](#infos)
+- [Project additional info](#infos)
 
 
 ## <a name="introduction"></a>Introduction
@@ -39,7 +39,7 @@ It requires:
 Upload `HeartBeat_to_digital_out.ino` to the Arduino UNO  
 Upload `MDBR_heartrate.ino` to the Arduino MEGA
 
-## <a name="infos"></a>Project additional infos
+## <a name="infos"></a>Project additional info
 
 ### Project purpose
 *Heart rate* is designed as an installation. It consists in a totem that features an area where the users place their hands and a set of LEDs and LED stripes. The hands area allows the heart sensor to check user heartbeat. Three types of LEDs are displayed
