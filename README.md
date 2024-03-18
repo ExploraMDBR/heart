@@ -12,11 +12,7 @@
 
 ## <a name="introduction"></a>Introduction
 *Heart rate* is based on **Arduino sketches**. It reads the signal of a heart sensor. When the sensor detects the heartbeat (it takes up to 5” to read the pulse) the app plays an audio file of a heartbeat and lights up an array of LEDs, rhythmically and consistently with user's heartbeat.
-Additionally, it turns on a *one by one animation* of an array of 
-
-LEDs
-
- strips displayed in a folded shape (mimicking veins and arteries). 
+Additionally, it turns on a *one by one animation* of an array of LEDs strips displayed in a folded shape (mimicking veins and arteries). 
 
 
 ### How it works
